@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#05080d">
+  <title>SIM.lab — vies émergentes</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="game-body">
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+
+  <header class="game-hud">
+    <div class="hud-brand">
+      <div class="brand-mark" aria-hidden="true"><span></span><i></i></div>
+      <div>
+        <span class="eyebrow">Emergent life simulator</span>
+        <h1>SIM<span>.lab</span></h1>
+      </div>
+    </div>
+
+    <section class="hud-metrics" aria-label="État du monde">
+      <div class="hud-stat"><span>Population</span><b id="stat-pop">0</b></div>
+      <div class="hud-stat"><span>Année</span><b id="stat-year">0</b></div>
+      <div class="hud-stat hud-stat-wide"><span>Âge moyen</span><b id="stat-age">0</b></div>
+      <div class="hud-stat"><span>Naissances</span><b id="stat-birth">0</b></div>
+      <div class="hud-stat"><span>Décès</span><b id="stat-death">0</b></div>
+      <div class="hud-stat"><span>Ressources</span><b id="stat-food">0</b></div>
+    </section>
+
+    <div class="hud-time" aria-label="Temps de simulation">
+      <button id="toggle" class="play-button" title="Pause / reprendre (Espace)">
+        <span class="play-icon" aria-hidden="true">Ⅱ</span><span class="play-label">Pause</span>
+      </button>
+      <div class="speed-group" aria-label="Vitesse">
+        <button data-speed="1">×1</button>
+        <button data-speed="4">×4</button>
+        <button data-speed="12">×12</button>
+        <button data-speed="30">×30</button>
+      </div>
+      <strong id="speed-label" class="speed-readout">×4</strong>
+    </div>
+
+    <div class="hud-system">
+      <span id="persistence-status" class="persistence" role="status" aria-live="polite">Connexion…</span>
+      <button id="fullscreen" class="icon-button" title="Plein écran (F)" aria-label="Basculer le plein écran">⛶</button>
+    </div>
+  </header>
+
+  <main class="game-shell">
+    <section class="world-card game-world" aria-label="Monde simulé">
+      <div class="world-stage">
+        <canvas id="world" width="1200" height="760" aria-label="Carte du monde simulé"></canvas>
+        <div class="world-vignette" aria-hidden="true"></div>
+
+        <div class="world-status">
+          <span class="live-dot" aria-hidden="true"></span>
+          <div><b id="world-state">MONDE ACTIF</b><span id="world-pulse">Synchronisation du monde…</span></div>
+        </div>
+
+        <div id="selection-hud" class="selection-hud" hidden></div>
+
+        <div id="event-ticker" class="event-ticker" aria-live="polite">
+          <span class="ticker-kicker">Dernier événement</span>
+          <span id="ticker-text">En attente d’activité…</span>
+        </div>
+
+        <div class="legend" aria-label="Légende">
+          <span><i class="life-f"></i> F</span>
+          <span><i class="life-m"></i> M</span>
+          <span><i class="food"></i> ressource</span>
+          <span><i class="artifact"></i> artefact</span>
+        </div>
+
+        <div class="world-help" aria-hidden="true">Clique une vie pour l’observer · Espace : pause · 1–4 : panneaux</div>
+      </div>
+    </section>
+
+    <nav class="game-dock" aria-label="Modes de jeu">
+      <button type="button" data-panel="observer-panel" data-shortcut="1">
+        <span class="dock-icon">◎</span><span>Observer</span><kbd>1</kbd>
+      </button>
+      <button type="button" data-panel="lab-panel" data-shortcut="2">
+        <span class="dock-icon">✦</span><span>Laboratoire</span><kbd>2</kbd>
+      </button>
+      <button type="button" data-panel="settings-panel" data-shortcut="3">
+        <span class="dock-icon">⌁</span><span>Monde</span><kbd>3</kbd>
+      </button>
+      <button type="button" data-panel="journal-panel" data-shortcut="4">
+        <span class="dock-icon">≡</span><span>Journal</span><kbd>4</kbd>
+      </button>
+    </nav>
+
+    <aside id="observer-panel" class="game-panel inspector-card" aria-label="Vie observée">
+      <div class="panel-handle" aria-hidden="true"></div>
+      <header class="panel-header">
+        <div><span class="eyebrow">Observation</span><h2>Vie sélectionnée</h2></div>
+        <button type="button" class="panel-close" data-close-panel aria-label="Fermer">×</button>
+      </header>
+      <div id="inspector" class="panel-scroll"></div>
+    </aside>
+
+    <aside id="lab-panel" class="game-panel lab-card" aria-label="Laboratoire">
+      <div class="panel-handle" aria-hidden="true"></div>
+      <header class="panel-header">
+        <div><span class="eyebrow">Intervention</span><h2>Laboratoire</h2></div>
+        <button type="button" class="panel-close" data-close-panel aria-label="Fermer">×</button>
+      </header>
+      <div class="panel-scroll">
+        <section class="panel-section">
+          <div class="section-copy">
+            <b>Introduire un objet</b>
+            <span>Les vies ne reçoivent aucune explication et devront découvrir son usage.</span>
+          </div>
+          <div class="artifact-picker" role="group" aria-label="Artefact à introduire">
+            <button type="button" data-artifact="stick" class="active"><strong>│</strong><span>Bâton</span></button>
+            <button type="button" data-artifact="stone"><strong>◆</strong><span>Pierre</span></button>
+            <button type="button" data-artifact="ember"><strong>✦</strong><span>Braise</span></button>
+            <button type="button" data-artifact="seed"><strong>●</strong><span>Graine</span></button>
+            <button type="button" data-artifact="wheel"><strong>◉</strong><span>Roue</span></button>
+            <button type="button" data-artifact="herb"><strong>✤</strong><span>Plante</span></button>
+          </div>
+          <select id="artifactType" class="native-artifact-select" aria-label="Type d'artefact">
+            <option value="stick">Bâton</option>
+            <option value="stone">Pierre</option>
+            <option value="ember">Braise</option>
+            <option value="seed">Graine</option>
+            <option value="wheel">Roue</option>
+            <option value="herb">Plante</option>
+          </select>
+          <div class="inject-controls">
+            <label>Quantité <input id="artifactCount" type="number" min="1" max="60" value="10"></label>
+            <button id="inject" class="primary">Introduire dans le monde</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-copy">
+            <b>Événement mondial</b>
+            <span>Déclenche une pression environnementale immédiatement.</span>
+          </div>
+          <div class="shock-grid">
+            <button data-shock="drought"><span>☀</span><b>Sécheresse</b><small>Rareté accrue</small></button>
+            <button data-shock="disease"><span>⌁</span><b>Épidémie</b><small>Pression sanitaire</small></button>
+            <button data-shock="abundance"><span>✦</span><b>Abondance</b><small>Ressources accrues</small></button>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <aside id="settings-panel" class="game-panel control-card" aria-label="Paramètres du monde">
+      <div class="panel-handle" aria-hidden="true"></div>
+      <header class="panel-header">
+        <div><span class="eyebrow">Règles globales</span><h2>Monde</h2></div>
+        <button type="button" class="panel-close" data-close-panel aria-label="Fermer">×</button>
+      </header>
+      <div class="panel-scroll">
+        <section class="panel-section">
+          <div class="section-copy"><b>Scénarios rapides</b><span>Change plusieurs règles cohérentes en une action.</span></div>
+          <div class="preset-grid">
+            <button data-preset="cooperative"><b>Coopération</b><small>Empathie et apprentissage social</small></button>
+            <button data-preset="harsh"><b>Monde rude</b><small>Rareté et compétition</small></button>
+            <button data-preset="research"><b>Explorateurs</b><small>Curiosité et expérimentation</small></button>
+          </div>
+        </section>
+
+        <details class="settings-group" open>
+          <summary><span>01</span><div><b>Démographie</b><small>Cycle de vie et évolution</small></div></summary>
+          <div class="sliders">
+            <label>Population initiale <output data-out="population"></output><input id="population" min="20" max="300" step="10" value="90" type="range"></label>
+            <label>Fertilité <output data-out="fertility"></output><input id="fertility" data-percent="1" min="0.05" max="0.7" step="0.01" value="0.24" type="range"></label>
+            <label>Mutation <output data-out="mutation"></output><input id="mutation" data-percent="1" min="0" max="0.35" step="0.01" value="0.08" type="range"></label>
+            <label>Espérance de vie <output data-out="lifespan"></output><input id="lifespan" min="35" max="130" step="1" value="82" type="range"></label>
+          </div>
+        </details>
+
+        <details class="settings-group">
+          <summary><span>02</span><div><b>Environnement</b><small>Abondance et pression</small></div></summary>
+          <div class="sliders">
+            <label>Abondance nourriture <output data-out="foodAbundance"></output><input id="foodAbundance" data-percent="1" min="0.1" max="1" step="0.01" value="0.58" type="range"></label>
+            <label>Régénération ressources <output data-out="resourceRespawn"></output><input id="resourceRespawn" data-percent="1" min="0.02" max="0.8" step="0.01" value="0.28" type="range"></label>
+            <label>Pression de rareté <output data-out="scarcityPressure"></output><input id="scarcityPressure" data-percent="1" min="0" max="1" step="0.01" value="0.35" type="range"></label>
+          </div>
+        </details>
+
+        <details class="settings-group">
+          <summary><span>03</span><div><b>Apprentissage</b><small>Transmission et exploration</small></div></summary>
+          <div class="sliders">
+            <label>Vitesse d'apprentissage <output data-out="learningRate"></output><input id="learningRate" data-percent="1" min="0.04" max="0.7" step="0.01" value="0.24" type="range"></label>
+            <label>Apprentissage social <output data-out="socialLearning"></output><input id="socialLearning" data-percent="1" min="0" max="1" step="0.01" value="0.58" type="range"></label>
+            <label>Curiosité moyenne <output data-out="meanCuriosity"></output><input id="meanCuriosity" data-percent="1" min="0" max="1" step="0.01" value="0.58" type="range"></label>
+          </div>
+        </details>
+
+        <details class="settings-group">
+          <summary><span>04</span><div><b>Comportement</b><small>Tempérament collectif</small></div></summary>
+          <div class="sliders">
+            <label>Agressivité moyenne <output data-out="meanAggression"></output><input id="meanAggression" data-percent="1" min="0" max="1" step="0.01" value="0.24" type="range"></label>
+            <label>Empathie moyenne <output data-out="meanEmpathy"></output><input id="meanEmpathy" data-percent="1" min="0" max="1" step="0.01" value="0.62" type="range"></label>
+          </div>
+        </details>
+
+        <section class="panel-section panel-utility">
+          <button id="export">Exporter la configuration</button>
+          <label class="file">Importer un JSON<input id="import" type="file" accept="application/json"></label>
+          <button id="reset" class="danger">Réinitialiser le monde</button>
+        </section>
+      </div>
+    </aside>
+
+    <aside id="journal-panel" class="game-panel events-card" aria-label="Journal du monde">
+      <div class="panel-handle" aria-hidden="true"></div>
+      <header class="panel-header">
+        <div><span class="eyebrow">Chronique</span><h2>Journal du monde</h2></div>
+        <button type="button" class="panel-close" data-close-panel aria-label="Fermer">×</button>
+      </header>
+      <div class="panel-tabs" role="tablist">
+        <button type="button" class="active" data-journal-tab="events-view">Événements</button>
+        <button type="button" data-journal-tab="knowledge-view">Connaissances</button>
+      </div>
+      <div class="panel-scroll">
+        <section id="events-view" class="journal-view active"><div id="events"></div></section>
+        <section id="knowledge-view" class="journal-view"><div id="knowledge"></div></section>
+      </div>
+    </aside>
+  </main>
+
+  <footer>SIM.lab · observer → intervenir → laisser émerger → comprendre</footer>
+
+  <script src="/app.js" defer></script>
+  <script src="/persistence.js" defer></script>
+</body>
+</html>
