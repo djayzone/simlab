@@ -1,0 +1,13 @@
+services:
+  simlab:
+    build:
+      context: .
+    image: simlab:local
+    ports:
+      - "8080:8080"
+    volumes:
+      - simlab-data:/data
+    restart: unless-stopped
+
+volumes:
+  simlab-data:

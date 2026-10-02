@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: simlab
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: simlab-data
+  namespace: simlab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simlab
+  namespace: simlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simlab
+  template:
+    metadata:
+      labels:
+        app: simlab
+    spec:
+      containers:
+        - name: simlab
+          image: simlab:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: SIM_STATIC_ROOT
+              value: /app
+            - name: SIM_DB_PATH
+              value: /data/sim.db
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: simlab-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simlab
+  namespace: simlab
+spec:
+  selector:
+    app: simlab
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
