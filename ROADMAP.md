@@ -31,7 +31,7 @@ A Helm chart is available under `deploy/helm/simlab`. It is intentionally option
 
 - Reintroducing private homelab infrastructure configuration.
 - Requiring a specific cloud provider.
-- Adding automated GitHub Actions that consume repository CI minutes by default.
+- Running CI automatically on pushes or pull requests. The only GitHub Actions workflow is an explicit manual container-image publication.
 
 ## How to help
 

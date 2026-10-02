@@ -1,42 +1,48 @@
-# Publication manuelle d'une image conteneur (GHCR)
+# Publier une image conteneur sur GHCR
 
-SIM.lab ne fournit volontairement **aucun workflow GitHub Actions automatique** pour publier les images.
+[🇬🇧 English](PUBLISHING.md) · [🇫🇷 Français](PUBLISHING.fr.md)
 
-Cela permet de ne consommer aucune minute de CI du dépôt.
+SIM.lab n'a **aucune CI automatique sur les push ou pull requests**.
 
-## Publier manuellement
+La publication d'une image est disponible uniquement via un workflow GitHub Actions **déclenché manuellement**, ou depuis votre propre machine.
 
-Connexion à GitHub Container Registry :
+## Méthode recommandée : interface GitHub
 
-```bash
-docker login ghcr.io -u VOTRE_UTILISATEUR_GITHUB
+1. Ouvrez le dépôt sur GitHub.
+2. Allez dans **Actions**.
+3. Sélectionnez **Publish Docker image to GHCR**.
+4. Cliquez sur **Run workflow**.
+5. Saisissez le tag, par exemple :
+   - `latest`
+   - `1.0.0`
+   - `2026-10-03`
+6. Confirmez avec **Run workflow**.
+
+L'image publiée sera :
+
+```text
+ghcr.io/djayzone/simlab:<tag>
 ```
 
-Construction et tag :
+Le workflow utilise le `GITHUB_TOKEN` du dépôt avec le droit `packages: write`. Aucun token personnel n'est stocké dans le repo.
 
-```bash
-docker build -t ghcr.io/djayzone/simlab:latest .
-```
+> Les minutes GitHub Actions ne sont consommées que lorsque ce workflow est lancé manuellement.
 
-Publication :
+## Première publication
 
-```bash
-docker push ghcr.io/djayzone/simlab:latest
-```
-
-Pour une version :
-
-```bash
-docker build -t ghcr.io/djayzone/simlab:1.0.0 .
-docker push ghcr.io/djayzone/simlab:1.0.0
-```
-
-Après le premier push, passez la visibilité du package à **Public** dans GitHub Packages si vous souhaitez autoriser les pulls anonymes.
+La visibilité d'un package GHCR est indépendante de celle du dépôt. Après le premier push, vérifiez les paramètres du package et passez-le en **Public** si vous souhaitez permettre les pulls anonymes.
 
 ## Utiliser l'image
 
 ```bash
+docker pull ghcr.io/djayzone/simlab:latest
 docker run --rm -p 8080:8080 -v simlab-data:/data ghcr.io/djayzone/simlab:latest
 ```
 
-Pour Kubernetes ou Helm, utilisez `ghcr.io/djayzone/simlab` comme repository d'image.
+## Publication depuis votre propre machine
+
+```bash
+docker login ghcr.io -u VOTRE_UTILISATEUR_GITHUB
+docker build -t ghcr.io/djayzone/simlab:latest .
+docker push ghcr.io/djayzone/simlab:latest
+```

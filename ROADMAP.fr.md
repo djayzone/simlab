@@ -29,7 +29,7 @@ Docker Compose et des manifests Kubernetes génériques sont fournis. Un chart H
 
 - Réintroduire la configuration du homelab privé.
 - Imposer un cloud particulier.
-- Ajouter une CI GitHub Actions automatique consommant des minutes.
+- Lancer de la CI automatiquement sur les push ou pull requests. Le seul workflow GitHub Actions est la publication manuelle d'une image.
 
 ## Participer
 
