@@ -1,27 +1,23 @@
-# Lancer SIM.lab sur Kubernetes
+# Run SIM.lab on Kubernetes
 
-Ce guide explique une installation simple. Aucun Ingress n'est nécessaire pour commencer.
+[🇬🇧 English](KUBERNETES.md) · [🇫🇷 Français](KUBERNETES.fr.md)
 
-## Ce qui sera créé
+This guide walks through a simple deployment. No Ingress is required to get started.
 
-Le dossier `deploy/kubernetes/` crée :
+## What gets created
 
-- un namespace `simlab` ;
-- un Deployment avec un pod SIM.lab ;
-- un Service interne ;
-- un PersistentVolumeClaim pour conserver `sim.db`.
+The manifest in `deploy/kubernetes/` creates:
 
-## Option A — tester localement avec kind
+- namespace `simlab`;
+- one Deployment;
+- one internal Service;
+- one PersistentVolumeClaim for `sim.db`.
 
-### 1. Prérequis
+## Option A — local test with kind
 
-Installez :
+### Requirements
 
-- Docker ;
-- `kubectl` ;
-- `kind`.
-
-Vérifiez :
+Install Docker, `kubectl` and `kind`.
 
 ```bash
 docker --version
@@ -29,33 +25,31 @@ kubectl version --client
 kind version
 ```
 
-### 2. Construire l'image
-
-Depuis la racine du dépôt :
+### Build the image
 
 ```bash
 docker build -t simlab:local .
 ```
 
-### 3. Créer un cluster local
+### Create a local cluster
 
 ```bash
 kind create cluster --name simlab
 ```
 
-### 4. Charger l'image Docker dans kind
+### Load the image into kind
 
 ```bash
 kind load docker-image simlab:local --name simlab
 ```
 
-### 5. Déployer
+### Deploy
 
 ```bash
 kubectl apply -f deploy/kubernetes/
 ```
 
-### 6. Vérifier
+### Check the deployment
 
 ```bash
 kubectl -n simlab get pods
@@ -63,42 +57,38 @@ kubectl -n simlab get svc
 kubectl -n simlab get pvc
 ```
 
-Le pod doit finir en état `Running`.
+The pod should eventually reach `Running`.
 
-### 7. Ouvrir l'application
+### Open the application
 
 ```bash
 kubectl -n simlab port-forward svc/simlab 8080:8080
 ```
 
-Ouvrez ensuite :
+Open **http://localhost:8080**.
 
-```text
-http://localhost:8080
-```
+## Option B — real Kubernetes cluster
 
-## Option B — utiliser un vrai cluster
-
-Construisez l'image et poussez-la dans votre registre :
+Build and push the image to your registry:
 
 ```bash
-docker build -t REGISTRY/UTILISATEUR/simlab:latest .
-docker push REGISTRY/UTILISATEUR/simlab:latest
+docker build -t REGISTRY/USER/simlab:latest .
+docker push REGISTRY/USER/simlab:latest
 ```
 
-Éditez ensuite `deploy/kubernetes/deployment.yaml` et remplacez :
+Edit `deploy/kubernetes/deployment.yaml` and replace:
 
 ```yaml
 image: simlab:local
 ```
 
-par votre image :
+with:
 
 ```yaml
-image: REGISTRY/UTILISATEUR/simlab:latest
+image: REGISTRY/USER/simlab:latest
 ```
 
-Puis :
+Then:
 
 ```bash
 kubectl apply -f deploy/kubernetes/
@@ -110,22 +100,20 @@ kubectl apply -f deploy/kubernetes/
 kubectl -n simlab logs -f deployment/simlab
 ```
 
-## Redémarrer
+## Restart
 
 ```bash
 kubectl -n simlab rollout restart deployment/simlab
 ```
 
-## Supprimer l'application
+## Remove
 
 ```bash
 kubectl delete -f deploy/kubernetes/
 ```
 
-Attention : selon votre StorageClass, la suppression du PVC peut supprimer la base SQLite.
+Depending on your StorageClass and reclaim policy, deleting storage resources may also delete the SQLite database.
 
-## Exposer publiquement
+## Public exposure
 
-Pour un premier test, utilisez `kubectl port-forward`.
-
-Pour une exposition Internet, ajoutez ensuite un Ingress adapté à votre contrôleur (Traefik, NGINX, etc.) et un certificat TLS. Cet élément dépend du cluster et n'est donc volontairement pas imposé dans le manifeste générique.
+Start with port-forwarding. For Internet exposure, add an Ingress compatible with your cluster and enable HTTPS.

@@ -1,132 +1,118 @@
-# Lancer SIM.lab avec Docker
+# Run SIM.lab with Docker
 
-Ce guide ne suppose aucune connaissance de Python.
+[🇬🇧 English](DOCKER.md) · [🇫🇷 Français](DOCKER.fr.md)
 
-## 1. Installer Docker
+This guide assumes no Python knowledge.
 
-Installez **Docker Desktop** sur Windows/macOS ou Docker Engine sur Linux.
+## 1. Install Docker
 
-Vérifiez ensuite :
+Install **Docker Desktop** on Windows/macOS or Docker Engine on Linux.
+
+Check your installation:
 
 ```bash
 docker --version
 docker compose version
 ```
 
-## 2. Télécharger le projet
+## 2. Download the project
 
 ```bash
 git clone https://github.com/djayzone/simlab.git
 cd simlab
 ```
 
-## 3. Méthode la plus simple : Docker Compose
+## 3. Easiest method: Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-Attendez que le conteneur soit démarré, puis ouvrez :
+Open:
 
 ```text
 http://localhost:8080
 ```
 
-Pour arrêter :
+Stop the application:
 
 ```bash
 docker compose down
 ```
 
-Votre monde n'est pas supprimé : la base SQLite reste dans le volume `simlab-data`.
+Your world is preserved in the `simlab-data` Docker volume.
 
-Pour supprimer également toutes les données :
+To remove the application **and all saved data**:
 
 ```bash
 docker compose down -v
 ```
 
-## 4. Méthode Docker classique
+## 4. Plain Docker
 
-Construire l'image :
+Build:
 
 ```bash
 docker build -t simlab:local .
 ```
 
-Lancer le produit :
+Run:
 
 ```bash
 docker run --name simlab -p 8080:8080 -v simlab-data:/data simlab:local
 ```
 
-Ouvrez ensuite :
+Open **http://localhost:8080**.
 
-```text
-http://localhost:8080
-```
-
-Arrêter :
+Stop:
 
 ```bash
 docker stop simlab
 ```
 
-Relancer :
+Start again:
 
 ```bash
 docker start simlab
 ```
 
-Supprimer uniquement le conteneur :
-
-```bash
-docker rm simlab
-```
-
-Les données restent dans le volume.
-
-## Vérifier que SIM.lab fonctionne
+## Health check
 
 ```bash
 curl http://localhost:8080/healthz
 ```
 
-Réponse attendue :
+Expected response:
 
 ```json
 {"ok":true}
 ```
 
-## Voir les logs
+## Logs
 
-Avec Compose :
+Compose:
 
 ```bash
 docker compose logs -f simlab
 ```
 
-Avec Docker :
+Docker:
 
 ```bash
 docker logs -f simlab
 ```
 
-## Changer le port
+## Use another host port
 
-Exemple pour exposer SIM.lab sur le port 9000 de votre machine :
+Example with port 9000:
 
 ```bash
 docker run --rm -p 9000:8080 -v simlab-data:/data simlab:local
 ```
 
-L'URL devient alors :
+Then open **http://localhost:9000**.
 
-```text
-http://localhost:9000
-```
-
-## Mettre à jour
+## Update
 
 ```bash
 git pull

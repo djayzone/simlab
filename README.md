@@ -2,9 +2,11 @@
 
 # SIM.lab
 
-### Une simulation d'agents, de ressources, de climat et de civilisations émergentes.
+### An emergent simulation of agents, resources, climate and civilizations.
 
-**Observez un monde évoluer, apprendre, coopérer, se fragmenter et s'adapter.**
+**Watch a world evolve, learn, cooperate, fragment and adapt.**
+
+[🇬🇧 English](README.md) · [🇫🇷 Français](README.fr.md)
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
@@ -16,24 +18,24 @@
 
 ---
 
-## À propos
+## About
 
-**SIM.lab** est un prototype de simulation émergente. Des agents autonomes évoluent dans un monde partagé avec des ressources, des besoins, des relations sociales, des apprentissages, des événements climatiques et des mécanismes de civilisation.
+**SIM.lab** is an experimental emergent simulation. Autonomous agents live in a shared world with resources, needs, social relationships, learning, climate events and civilization mechanics.
 
-Le projet n'est plus développé comme produit officiel par son créateur, mais il reste **ouvert aux forks, issues et pull requests**.
+The project is no longer developed as an official first-party product, but it remains **open to forks, issues and pull requests**.
 
-> Vous débutez ? Le plus simple est de commencer avec Docker. Aucune connaissance Python n'est nécessaire.
+> New here? Start with Docker Compose. You do not need any Python knowledge.
 
-## Démarrage rapide
+## Quick start
 
-| Méthode | Pour qui ? | Commande principale |
+| Method | Best for | Main command |
 |---|---|---|
-| **Docker Compose** | Débutants | `docker compose up --build` |
-| **Docker** | Utilisateurs Docker | `docker build -t simlab:local .` |
-| **Python local** | Développeurs Python | `SIM_STATIC_ROOT=. SIM_DB_PATH=./sim.db python3 server.py` |
-| **Kubernetes** | Homelab / cluster | voir [docs/KUBERNETES.md](docs/KUBERNETES.md) |
+| **Docker Compose** | Beginners | `docker compose up --build` |
+| **Docker** | Docker users | `docker build -t simlab:local .` |
+| **Local Python** | Python developers | `SIM_STATIC_ROOT=. SIM_DB_PATH=./sim.db python3 server.py` |
+| **Kubernetes** | Homelabs / clusters | see [docs/KUBERNETES.md](docs/KUBERNETES.md) |
 
-### Option recommandée : Docker Compose
+### Recommended: Docker Compose
 
 ```bash
 git clone https://github.com/djayzone/simlab.git
@@ -41,19 +43,17 @@ cd simlab
 docker compose up --build
 ```
 
-Puis ouvrez :
+Then open **http://localhost:8080**.
 
-**http://localhost:8080**
-
-La base SQLite est conservée automatiquement dans un volume Docker nommé `simlab-data`.
+The SQLite database is automatically persisted in a Docker volume named `simlab-data`.
 
 ## Docker
 
-Guide détaillé, expliqué étape par étape :
+Step-by-step beginner guide:
 
 **[docs/DOCKER.md](docs/DOCKER.md)**
 
-En version courte :
+Short version:
 
 ```bash
 docker build -t simlab:local .
@@ -62,9 +62,9 @@ docker run --rm -p 8080:8080 -v simlab-data:/data simlab:local
 
 ## Kubernetes
 
-Un manifeste générique est fourni dans `deploy/kubernetes/`.
+A generic manifest is provided in `deploy/kubernetes/`.
 
-Pour tester localement avec **kind** :
+Quick local test with **kind**:
 
 ```bash
 docker build -t simlab:local .
@@ -74,27 +74,27 @@ kubectl apply -f deploy/kubernetes/
 kubectl -n simlab port-forward svc/simlab 8080:8080
 ```
 
-Puis ouvrez **http://localhost:8080**.
+Then open **http://localhost:8080**.
 
-Le guide complet explique également comment utiliser votre propre registre d'images :
+Full Kubernetes guide:
 
 **[docs/KUBERNETES.md](docs/KUBERNETES.md)**
 
-## Développement local
+## Local development
 
-### Prérequis
+### Requirements
 
-- Python 3.11 ou supérieur
+- Python 3.11 or newer
 
-### Lancement
+### Run
 
-Linux/macOS :
+Linux/macOS:
 
 ```bash
 SIM_STATIC_ROOT=. SIM_DB_PATH=./sim.db python3 server.py
 ```
 
-PowerShell :
+PowerShell:
 
 ```powershell
 $env:SIM_STATIC_ROOT="."
@@ -102,7 +102,7 @@ $env:SIM_DB_PATH="./sim.db"
 python server.py
 ```
 
-Puis ouvrez **http://localhost:8080**.
+Then open **http://localhost:8080**.
 
 ### Tests
 
@@ -110,49 +110,49 @@ Puis ouvrez **http://localhost:8080**.
 python3 -m unittest discover -p 'test_*.py'
 ```
 
-## Persistance
+## Persistence
 
-SIM.lab utilise SQLite.
+SIM.lab uses SQLite.
 
-| Environnement | Emplacement |
+| Environment | Location |
 |---|---|
-| Docker | `/data/sim.db` dans le volume `simlab-data` |
-| Kubernetes | `/data/sim.db` sur un PersistentVolumeClaim |
-| Local | configurable avec `SIM_DB_PATH` |
+| Docker | `/data/sim.db` in the `simlab-data` volume |
+| Kubernetes | `/data/sim.db` on a PersistentVolumeClaim |
+| Local | configurable with `SIM_DB_PATH` |
 
-Supprimer la base revient à repartir avec un nouveau monde.
+Deleting the database starts a fresh world.
 
 ## Architecture
 
-Les principales briques sont volontairement lisibles et accessibles :
+The main building blocks are intentionally straightforward:
 
-- `engine.py` — état du monde et simulation principale ;
-- `learning_engine.py` — apprentissage des agents ;
-- `social_engine.py` — relations et dynamiques sociales ;
-- `weather_engine.py` — climat ;
-- `server.py` — serveur HTTP et interface ;
-- `index.html`, `app.js`, `styles.css` — interface web ;
-- `test_*.py` — tests automatisés.
+- `engine.py` — world state and main simulation loop;
+- `learning_engine.py` — agent learning;
+- `social_engine.py` — relationships and social dynamics;
+- `weather_engine.py` — climate;
+- `server.py` — HTTP server and web interface;
+- `index.html`, `app.js`, `styles.css` — frontend;
+- `test_*.py` — automated tests.
 
-## Documentation technique
+## Technical documentation
 
 - [Runtime](RUNTIME.md)
-- [Schéma](SCHEMA.md)
-- [Gameplay & équilibrage](GAMEPLAY_BALANCE.md)
-- [Civilisation et dynamiques sociales](SOCIAL_CIVILIZATION.md)
-- [Météo](WEATHER.md)
-- [Contrôle météo](WEATHER_CONTROL.md)
+- [Schema](SCHEMA.md)
+- [Gameplay & balancing](GAMEPLAY_BALANCE.md)
+- [Civilization & social dynamics](SOCIAL_CIVILIZATION.md)
+- [Weather](WEATHER.md)
+- [Weather control](WEATHER_CONTROL.md)
 - [Performance](PERFORMANCE.md)
-- [Mécaniques](HOT_MECHANICS.md)
+- [Mechanics](HOT_MECHANICS.md)
 
-## Contribuer
+## Contributing
 
-Les améliorations de gameplay, performances, UX, documentation et architecture sont les bienvenues.
+Gameplay, performance, UX, documentation and architecture improvements are welcome.
 
-Voir **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
-Les manifests Kubernetes historiques du homelab privé ne font volontairement pas partie de ce dépôt. Les exemples publics fournis ici sont génériques.
+Historical Kubernetes manifests from the original private homelab are intentionally not included. The public deployment examples in this repository are generic.
 
-## Licence
+## License
 
-MIT — voir [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
