@@ -159,6 +159,10 @@ helm install simlab ./deploy/helm/simlab --namespace simlab --create-namespace
 
 The plain Kubernetes YAML remains the recommended learning path for beginners.
 
+### Publishing container images without CI
+
+See **[docs/PUBLISHING.md](docs/PUBLISHING.md)** to build and push GHCR images manually, with no GitHub Actions workflow.
+
 ## Contributing
 
 Gameplay, performance, UX, documentation and architecture improvements are welcome.

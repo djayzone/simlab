@@ -41,14 +41,14 @@ spec:
               port: http
           resources:
 {{ toYaml .Values.resources | indent 12 }}
-          {{- if .Values.persistence.enabled }}
+{{ if .Values.persistence.enabled }}
           volumeMounts:
             - name: data
               mountPath: /data
-          {{- end }}
-      {{- if .Values.persistence.enabled }}
+{{ end }}
+{{ if .Values.persistence.enabled }}
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: {{ include "simlab.fullname" . }}
-      {{- end }}
+{{ end }}

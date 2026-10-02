@@ -105,6 +105,24 @@ SIM.lab utilise SQLite.
 - `index.html`, `app.js`, `styles.css` — interface web ;
 - `test_*.py` — tests automatisés.
 
+## Roadmap communautaire
+
+Voir **[ROADMAP.fr.md](ROADMAP.fr.md)** pour les idées de contribution, limitations et pistes d'évolution.
+
+### Helm
+
+Pour les utilisateurs Kubernetes avancés :
+
+```bash
+helm install simlab ./deploy/helm/simlab --namespace simlab --create-namespace
+```
+
+Le YAML Kubernetes classique reste recommandé pour débuter.
+
+### Publication d'images sans CI
+
+Voir **[docs/PUBLISHING.fr.md](docs/PUBLISHING.fr.md)** pour publier manuellement une image GHCR sans GitHub Actions.
+
 ## Contribuer
 
 Voir **[CONTRIBUTING.md](CONTRIBUTING.md)**.
