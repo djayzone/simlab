@@ -1,0 +1,6 @@
+apiVersion: v2
+name: simlab
+description: Community Helm chart for SIM.lab
+type: application
+version: 0.1.0
+appVersion: "community"

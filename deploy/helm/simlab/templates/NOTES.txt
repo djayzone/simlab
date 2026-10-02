@@ -1,0 +1,7 @@
+SIM.lab has been installed.
+
+To access it locally:
+
+  kubectl port-forward svc/{{ include "simlab.fullname" . }} 8080:{{ .Values.service.port }}
+
+Then open http://localhost:8080

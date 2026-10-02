@@ -145,11 +145,25 @@ The main building blocks are intentionally straightforward:
 - [Performance](PERFORMANCE.md)
 - [Mechanics](HOT_MECHANICS.md)
 
+## Community roadmap
+
+See **[ROADMAP.md](ROADMAP.md)** for starter tasks, larger ideas and current limitations.
+
+### Helm
+
+Advanced Kubernetes users can also use the optional Helm chart:
+
+```bash
+helm install simlab ./deploy/helm/simlab --namespace simlab --create-namespace
+```
+
+The plain Kubernetes YAML remains the recommended learning path for beginners.
+
 ## Contributing
 
 Gameplay, performance, UX, documentation and architecture improvements are welcome.
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)**. Bug reports, feature requests and documentation requests have dedicated GitHub issue forms.
 
 Historical Kubernetes manifests from the original private homelab are intentionally not included. The public deployment examples in this repository are generic.
 
