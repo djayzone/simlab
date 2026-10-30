@@ -22,7 +22,7 @@ Le moteur dispose d'une limite de 1 CPU. Les optimisations appliquées successiv
 
 Le profil runtime du 18 septembre 2026 montre ensuite `simulation_runtime._nearest` comme hotspot majeur, avec des scans répétés de la population vivante depuis `learning_engine._act()` et `_choose_action()`. La population vivante est désormais indexée dans une grille spatiale de 100 px. Les requêtes de proximité 80–95 px ne parcourent que les cellules voisines, tout en conservant exactement la règle de distance, les prédicats et l'ordre de départage du scan linéaire. L'index est reconstruit sur naissance/mort/reset/load et mis à jour en O(1) après chaque déplacement.
 
-Cette optimisation ne modifie ni la vitesse du monde, ni le nombre de ticks, ni les règles de décision. Les recherches de ressources et d'artefacts conservent pour l'instant le fallback linéaire ; elles pourront être indexées séparément si le prochain profil les fait remonter.
+Cette optimisation ne modifie ni la vitesse du monde, ni le nombre de ticks, ni les règles de décision. À cette étape historique, les recherches de ressources et d'artefacts utilisaient encore le repli linéaire ; leur indexation a depuis été ajoutée dans la phase 2 ci-dessous.
 
 ## Phase 2 — collections statiques du tick
 

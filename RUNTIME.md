@@ -35,6 +35,10 @@ La purge du monde reste un recours de dernier niveau : si une incompatibilité s
 
 Les tests de membership utilisent le même contrat que le moteur : lecteurs et écrivain partagent un `RLock`, chaque transition de membership appelle `changed()`, et aucun tuple ne doit exposer un agent mort. La sécurité de remplacement de source est testée séparément pour détecter un futur chemin reset/load qui oublierait la révision.
 
-## Suite du hardening
+## État actuel des recherches spatiales
 
-Après validation de cette révision explicite, le prochain lot pourra s'attaquer aux scans spatiaux répétés (`_nearest`, ressources et artefacts) avec une grille spatiale, sans coupler cet index au transport HTTP.
+Le chantier annoncé précédemment comme futur est **déjà intégré dans le code de ce dépôt** : `simulation_runtime.py` utilise `LivingSpatialIndex` pour les agents vivants et `SpatialCollectionCache` pour les vues `food`, `water` et `artifacts` (`spatial_index.py`). Le repli linéaire de `_nearest` reste disponible pour les collections non reconnues ; il compare les distances **au carré**, sans racine carrée, avec une borne stricte (`distance < max_distance`).
+
+L'index conserve l'ordre de départage des candidats à distance égale, reconstruit la population après changement de membership et met à jour la cellule d'un agent après déplacement. Les vues de ressources et d'artefacts sont reconstruites quand leur signature change. `test_spatial_index.py` contient des tests de comparaison au scan linéaire, de déplacement entre cellules, d'égalité de distance, de borne stricte et d'invalidation des vues.
+
+Ce relevé est **statique** : la présence du code et des tests ne prouve ni leur exécution récente, ni une amélioration CPU mesurée sur un cluster. Les mesures de performance et la qualification runtime restent distinctes de cette mise à jour documentaire. Voir [PERFORMANCE.md](PERFORMANCE.md).
