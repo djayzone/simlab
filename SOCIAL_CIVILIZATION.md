@@ -58,6 +58,8 @@ Les deux onglets du journal utilisent des relations explicites
 de tabulation. Flèches gauche/droite, Début et Fin déplacent la sélection
 et le focus ; un panneau inactif est masqué à la navigation assistée.
 La sélection au clic et les raccourcis de panneaux restent inchangés.
+Les raccourcis globaux (Espace, F, 1–4) laissent les touches natives aux
+contrôles interactifs et aux panneaux du journal lorsqu'ils ont le focus.
 
 **Suite du lot, non implémentée ici :** relier chaque événement significatif
 à des causes observables et vérifiables sans inventer d'intentions ; distinguer

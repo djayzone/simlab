@@ -515,7 +515,7 @@ document.getElementById('import').addEventListener('change',async event=>{
 window.addEventListener('keydown',event=>{
   const target=event.target;
   const typing=target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement;
-  if(typing)return;
+  if(typing||target?.closest?.('button,a,[role="tab"],[role="tabpanel"],[role="button"],[contenteditable]'))return;
 
   if(event.code==='Space'){
     event.preventDefault();

@@ -110,6 +110,9 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn("button.setAttribute('aria-selected',String(active))", app)
         self.assertIn('view.hidden=!active', app)
         self.assertIn('selected.focus()', app)
+        self.assertIn('target?.closest?.(', app)
+        self.assertIn('[role="tabpanel"]', app)
+        self.assertLess(app.index('target?.closest?.('), app.index("if(event.code==='Space')"))
 
 if __name__ == '__main__':
     unittest.main()
