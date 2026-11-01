@@ -215,13 +215,13 @@
         <div><span class="eyebrow">Chronique</span><h2>Journal du monde</h2></div>
         <button type="button" class="panel-close" data-close-panel aria-label="Fermer">×</button>
       </header>
-      <div class="panel-tabs" role="tablist">
-        <button type="button" class="active" data-journal-tab="events-view">Événements</button>
-        <button type="button" data-journal-tab="knowledge-view">Connaissances</button>
+      <div class="panel-tabs" role="tablist" aria-label="Vues du journal">
+        <button type="button" id="journal-events-tab" role="tab" aria-controls="events-view" aria-selected="true" tabindex="0" class="active" data-journal-tab="events-view">Événements</button>
+        <button type="button" id="journal-knowledge-tab" role="tab" aria-controls="knowledge-view" aria-selected="false" tabindex="-1" data-journal-tab="knowledge-view">Connaissances</button>
       </div>
       <div class="panel-scroll">
-        <section id="events-view" class="journal-view active"><div id="events"></div></section>
-        <section id="knowledge-view" class="journal-view"><div id="knowledge"></div></section>
+        <section id="events-view" class="journal-view active" role="tabpanel" aria-labelledby="journal-events-tab" tabindex="0"><div id="events"></div></section>
+        <section id="knowledge-view" class="journal-view" role="tabpanel" aria-labelledby="journal-knowledge-tab" tabindex="0" hidden><div id="knowledge"></div></section>
       </div>
     </aside>
   </main>

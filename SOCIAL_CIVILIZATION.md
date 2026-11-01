@@ -43,3 +43,25 @@ Le socle permettra ensuite d'ajouter séparément :
 3. influence sociale/leadership sans rôle assigné ;
 4. coopération sur des tâches et conflits collectifs ;
 5. métriques de civilisation et journal d'événements sociaux.
+
+## Chronique et lisibilité — état observé le 1er novembre 2026 (SIMLAB-27)
+
+Le monde conserve une timeline `events` append-only dans SQLite (`SCHEMA.md`).
+L'interface affiche déjà le dernier événement dans le ticker et un journal
+limité aux 50 événements renvoyés par `/api/world`, à côté de la vue
+`Connaissances`. L'inspecteur affiche les communautés et leurs relations.
+Ces éléments rendent des changements visibles, **mais ne constituent pas
+encore une explication causale vérifiée** de leur origine.
+
+Les deux onglets du journal utilisent des relations explicites
+`tablist` / `tab` / `tabpanel` et un seul onglet actif dans l'ordre
+de tabulation. Flèches gauche/droite, Début et Fin déplacent la sélection
+et le focus ; un panneau inactif est masqué à la navigation assistée.
+La sélection au clic et les raccourcis de panneaux restent inchangés.
+
+**Suite du lot, non implémentée ici :** relier chaque événement significatif
+à des causes observables et vérifiables sans inventer d'intentions ; distinguer
+les événements du monde des inférences de l'interface ; tester la compréhension
+de la chronologie et des communautés sur mobile, au clavier et avec lecteur
+d'écran. Le test structurel `test_web_ui.py` et la vérification isolée
+du gestionnaire d'onglets ne remplacent pas une recette navigateur/AT.

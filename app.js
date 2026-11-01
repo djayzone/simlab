@@ -359,10 +359,31 @@ document.querySelectorAll('.game-dock [data-panel]').forEach(button=>{
 });
 document.querySelectorAll('[data-close-panel]').forEach(button=>button.addEventListener('click',closePanels));
 
-document.querySelectorAll('[data-journal-tab]').forEach(button=>{
-  button.addEventListener('click',()=>{
-    document.querySelectorAll('[data-journal-tab]').forEach(b=>b.classList.toggle('active',b===button));
-    document.querySelectorAll('.journal-view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.journalTab));
+const journalTabs=[...document.querySelectorAll('[data-journal-tab]')];
+function activateJournalTab(selected,{focus=false}={}){
+  journalTabs.forEach(button=>{
+    const active=button===selected;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-selected',String(active));
+    button.tabIndex=active?0:-1;
+    const view=document.getElementById(button.dataset.journalTab);
+    view.classList.toggle('active',active);
+    view.hidden=!active;
+  });
+  if(focus)selected.focus();
+}
+journalTabs.forEach((button,index)=>{
+  button.addEventListener('click',()=>activateJournalTab(button));
+  button.addEventListener('keydown',event=>{
+    let next=index;
+    if(event.key==='ArrowRight')next=(index+1)%journalTabs.length;
+    else if(event.key==='ArrowLeft')next=(index-1+journalTabs.length)%journalTabs.length;
+    else if(event.key==='Home')next=0;
+    else if(event.key==='End')next=journalTabs.length-1;
+    else return;
+    event.preventDefault();
+    event.stopPropagation();
+    activateJournalTab(journalTabs[next],{focus:true});
   });
 });
 

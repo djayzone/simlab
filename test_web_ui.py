@@ -76,5 +76,40 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn('@media(prefers-reduced-motion:reduce)', self.mobile)
 
 
+    def test_journal_tabs_have_accessible_relationships(self):
+        from html.parser import HTMLParser
+
+        class JournalParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.tabs = []
+                self.panels = []
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == 'button' and attributes.get('role') == 'tab':
+                    self.tabs.append(attributes)
+                if tag == 'section' and attributes.get('role') == 'tabpanel':
+                    self.panels.append(attributes)
+
+        parsed = JournalParser()
+        parsed.feed(self.index)
+        self.assertEqual(len(parsed.tabs), 2)
+        self.assertEqual(len(parsed.panels), 2)
+        panels = {panel['id']: panel for panel in parsed.panels}
+        for tab in parsed.tabs:
+            panel = panels[tab['aria-controls']]
+            self.assertEqual(panel['aria-labelledby'], tab['id'])
+        self.assertEqual([tab['aria-selected'] for tab in parsed.tabs], ['true', 'false'])
+        self.assertEqual([tab['tabindex'] for tab in parsed.tabs], ['0', '-1'])
+        self.assertNotIn('hidden', panels['events-view'])
+        self.assertIn('hidden', panels['knowledge-view'])
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        for key in ('ArrowRight', 'ArrowLeft', 'Home', 'End'):
+            self.assertIn("event.key==='" + key + "'", app)
+        self.assertIn("button.setAttribute('aria-selected',String(active))", app)
+        self.assertIn('view.hidden=!active', app)
+        self.assertIn('selected.focus()', app)
+
 if __name__ == '__main__':
     unittest.main()
