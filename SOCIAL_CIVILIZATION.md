@@ -60,6 +60,8 @@ et le focus ; un panneau inactif est masqué à la navigation assistée.
 La sélection au clic et les raccourcis de panneaux restent inchangés.
 Les raccourcis globaux (Espace, F, 1–4) laissent les touches natives aux
 contrôles interactifs et aux panneaux du journal lorsqu'ils ont le focus.
+La touche `Échap` continue de fermer les panneaux lorsque le focus se trouve
+sur un onglet ou un bouton, sans détourner les touches de saisie.
 
 **Suite du lot, non implémentée ici :** relier chaque événement significatif
 à des causes observables et vérifiables sans inventer d'intentions ; distinguer

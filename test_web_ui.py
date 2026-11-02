@@ -113,6 +113,8 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn('target?.closest?.(', app)
         self.assertIn('[role="tabpanel"]', app)
         self.assertLess(app.index('target?.closest?.('), app.index("if(event.code==='Space')"))
+        self.assertLess(app.index("if(typing)return;"), app.index("if(event.key==='Escape')"))
+        self.assertLess(app.index("if(event.key==='Escape')"), app.index('if(target?.closest?.('))
 
 if __name__ == '__main__':
     unittest.main()
