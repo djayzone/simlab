@@ -31,7 +31,7 @@ Le profil post-déploiement a montré deux limites du premier lot :
 - le profileur comptait tous les threads Python et attribuait donc artificiellement environ 50 % des échantillons au worker de snapshot alors qu'il était bloqué dans `Event.wait()` ;
 - les agents étaient indexés, mais chaque agent reconstruisait encore les listes `food`, `water` et `artifacts`, puis exécutait des recherches linéaires dessus.
 
-Le profileur cible désormais uniquement le thread `sim-engine`. Les collections nourriture/eau/artefacts passent par des vues immuables mises en cache par signature `(identité du dictionnaire, taille, dernier id)`. Une naissance de ressource, une consommation, un choc météo ou l'ajout d'un artefact invalide donc automatiquement la vue concernée. Chaque vue possède son index spatial exact et conserve la sémantique historique de distance et de départage.
+Le profileur cible désormais uniquement le thread `sim-engine`. Les collections nourriture/eau/artefacts passent par des vues immuables mises en cache par signature `(identité du dictionnaire, taille, prochain identifiant)`. Les créations incrémentent le compteur et les retraits isolés changent la taille ; un événement météo n'invalide la vue que s'il ajoute ou retire des ressources. Une substitution arbitraire à taille et compteur inchangés n'est pas détectée : le cache repose sur les chemins de mutation ordinaires du moteur. Chaque vue possède son index spatial exact et conserve la sémantique historique de distance et de départage.
 
 Les bornes de cellules de l'index sont également calculées à partir du rectangle exact `origin ± max_distance` au lieu d'un rayon de cellules arrondi, ce qui réduit les cellules visitées pour les recherches de 150–240 px.
 

@@ -13,7 +13,7 @@ Le runtime est séparé en trois responsabilités :
 - les mutations de tick/persistance explicites passent sous `engine.lock` ;
 - la boucle moteur, `reset()`, les contrôles HTTP, `world_view()` et `agent_view()` utilisent le même `RLock` moteur ;
 - `living()` suppose ce verrou détenu par son appelant et ne rajoute donc pas un lock sur le hot path ;
-- les vues `food`, `water` et `artifacts` sont immuables et mises en cache dans la couche runtime ; leur signature est invalidée par tout changement observable de membership ;
+- les vues `food`, `water` et `artifacts` sont immuables et mises en cache dans la couche runtime ; leur signature `(identité du dictionnaire, taille, prochain identifiant)` détecte les ajouts et retraits ordinaires du moteur, mais pas une substitution arbitraire à taille et compteur inchangés ;
 - les recherches de proximité sur ces vues utilisent des index spatiaux séparés, sans modifier les objets gameplay ni leur ordre logique ;
 - toute modification de membership vivant passe par `_new_agent()`, `_die()`, `reset()` ou `_load()` et incrémente une révision explicite ;
 - `membership_cache.py` ne reconstruit le tuple vivant que lorsque cette révision change ; un remplacement inattendu du dictionnaire `agents` force néanmoins un rebuild de sécurité et incrémente `sourceFallbacks` ;
