@@ -26,10 +26,11 @@ Le HUD météo contient un panneau dépliable **Contrôle météo live** avec pr
 
 Le mode manuel n'altère pas les règles d'apprentissage : les agents observent simplement les conditions imposées comme n'importe quel phénomène environnemental. Le retour à `Auto` reprend immédiatement le cycle naturel.
 
-## Sécheresse naturelle : modèle récupérable (SIMLAB-15)
+## Sécheresse naturelle : modèle récupérable et état d'intégration (SIMLAB-15)
 
-En mode `auto`, la sécheresse n'est pas un compteur cumulatif :
-`climate_engine.py` appelle `advance_drought()` dans `climate_model.py`.
+Le modèle isolé `climate_model.py` décrit une sécheresse non cumulative :
+`climate_engine.Engine` appelle `advance_drought()` dans `climate_model.py`.
+**Ce moteur n'est pas utilisé par le point d'entrée Docker par défaut** (voir ci-dessous).
 La cible dépend de la saison, de la température, de l'humidité, des précipitations
 et du vent ; elle reste comprise entre **0,08 et 0,96**. L'état évolue
 progressivement vers cette cible et reste borné à **0–0,98**. Une pluie
@@ -42,6 +43,25 @@ paramètres de pluie, température ou vent sont imposés, la sécheresse continu
 d'évoluer selon ces conditions. L'action `{ "action": "auto" }` libère les
 contraintes manuelles et reprend l'évolution naturelle : elle **ne réinitialise
 pas** la sécheresse à zéro.
+
+### Limite du runtime par défaut
+
+Le `Dockerfile` démarre `python server.py` (sans surcharge dans
+`docker-compose.yml`). `server.Engine` hérite de `weather_control_engine.Engine`,
+puis de `weather_engine.Engine`, `learning_engine.Engine` et `engine.Engine`.
+Cette chaîne **ne traverse pas `climate_engine.Engine`** : le calcul exécuté
+utilise la formule historique `drying - wetting` de `weather_engine.py`,
+**pas** `advance_drought()`. Le module `engine_bootstrap.py` référence
+`social_engine.Engine`, qui hérite du moteur climatique, mais n'est pas
+l'entrée par défaut de Docker/Compose.
+
+Les bornes et la convergence décrites plus haut sont donc celles du **modèle
+isolé**, et non une garantie du serveur Docker/Compose. De plus,
+`weather_control_engine.Engine` applique les valeurs manuelles après
+l'avancement météo de sa classe parente : l'effet d'une pluie forcée sur la
+sécheresse doit être qualifié par un test d'intégration. Avant de déclarer
+le correctif actif, vérifier l'entrée réellement exécutée et tester le
+scénario `drought -> Auto -> rain` via l'API et l'interface.
 
 **Attention aux presets successifs :** en mode `manual`, chaque nouveau preset
 est fusionné avec les réglages déjà imposés. Passer de `heatwave` ou `drought`
@@ -62,5 +82,6 @@ Les cinq tests déterministes couvrent l'été normal, la sécheresse extrême
 bornée, la récupération après trente pas d'automne humide, l'effet limité
 d'une averse unique et les bornes d'entrée. **Ce sont des tests unitaires du
 modèle**, pas une recette du monde persistant, du contrôle HTTP ou de l'UX.
-Le présent changement est uniquement documentaire ; aucune validation
-runtime ni résultat de test nouveau n'est revendiqué.
+Le présent changement est uniquement documentaire. La vérification statique
+de la chaîne d'héritage ne remplace pas une recette runtime ; aucun résultat
+de test fonctionnel nouveau n'est revendiqué.
