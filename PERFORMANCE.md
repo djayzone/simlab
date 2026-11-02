@@ -20,9 +20,9 @@ Cette immutabilité ferme explicitement le principal risque de maintenance ident
 
 Le moteur dispose d'une limite de 1 CPU. Les optimisations appliquées successivement ont retiré les reconstructions HTTP concurrentes, les racines carrées inutiles dans `_nearest`, puis réduit le coût de persistance. Le profileur statistique embarqué continue d'indiquer les hotspots sans instrumentation appel-par-appel.
 
-Le profil runtime du 18 septembre 2026 montre ensuite `simulation_runtime._nearest` comme hotspot majeur, avec des scans répétés de la population vivante depuis `learning_engine._act()` et `_choose_action()`. La population vivante est désormais indexée dans une grille spatiale de 100 px. Les requêtes de proximité 80–95 px ne parcourent que les cellules voisines, tout en conservant exactement la règle de distance, les prédicats et l'ordre de départage du scan linéaire. L'index est reconstruit sur naissance/mort/reset/load et mis à jour en O(1) après chaque déplacement.
+Le profil runtime du 18 septembre 2026 montre ensuite `simulation_runtime._nearest` comme hotspot majeur, avec des scans répétés de la population vivante depuis `learning_engine._act()` et `_choose_action()`. La population vivante est désormais indexée dans une grille spatiale de 100 px. Les requêtes de proximité 80–95 px ne parcourent que les cellules voisines, tout en conservant exactement la règle de distance, les prédicats et l'ordre de départage du scan linéaire. L'index est reconstruit sur naissance/mort/reset/load et sa cellule est mise à jour après chaque déplacement. Lors d'un changement de cellule, le retrait parcourt l'ancienne cellule (coût proportionnel au nombre de candidats de cette cellule) ; il ne s'agit donc pas d'une mise à jour strictement O(1).
 
-Cette optimisation ne modifie ni la vitesse du monde, ni le nombre de ticks, ni les règles de décision. Les recherches de ressources et d'artefacts conservent pour l'instant le fallback linéaire ; elles pourront être indexées séparément si le prochain profil les fait remonter.
+Cette optimisation ne modifie ni la vitesse du monde, ni le nombre de ticks, ni les règles de décision. À cette étape historique, les recherches de ressources et d'artefacts utilisaient encore le repli linéaire ; leur indexation a depuis été ajoutée dans la phase 2 ci-dessous.
 
 ## Phase 2 — collections statiques du tick
 
@@ -31,7 +31,7 @@ Le profil post-déploiement a montré deux limites du premier lot :
 - le profileur comptait tous les threads Python et attribuait donc artificiellement environ 50 % des échantillons au worker de snapshot alors qu'il était bloqué dans `Event.wait()` ;
 - les agents étaient indexés, mais chaque agent reconstruisait encore les listes `food`, `water` et `artifacts`, puis exécutait des recherches linéaires dessus.
 
-Le profileur cible désormais uniquement le thread `sim-engine`. Les collections nourriture/eau/artefacts passent par des vues immuables mises en cache par signature `(identité du dictionnaire, taille, dernier id)`. Une naissance de ressource, une consommation, un choc météo ou l'ajout d'un artefact invalide donc automatiquement la vue concernée. Chaque vue possède son index spatial exact et conserve la sémantique historique de distance et de départage.
+Le profileur cible désormais uniquement le thread `sim-engine`. Les collections nourriture/eau/artefacts passent par des vues immuables mises en cache par signature `(identité du dictionnaire, taille, prochain identifiant)`. Les créations incrémentent le compteur et les retraits isolés changent la taille ; un événement météo n'invalide la vue que s'il ajoute ou retire des ressources. Une substitution arbitraire à taille et compteur inchangés n'est pas détectée : le cache repose sur les chemins de mutation ordinaires du moteur. Chaque vue possède son index spatial exact et conserve la sémantique historique de distance et de départage.
 
 Les bornes de cellules de l'index sont également calculées à partir du rectangle exact `origin ± max_distance` au lieu d'un rayon de cellules arrondi, ce qui réduit les cellules visitées pour les recherches de 150–240 px.
 
