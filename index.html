@@ -78,21 +78,21 @@
     </section>
 
     <nav class="game-dock" aria-label="Modes de jeu">
-      <button type="button" data-panel="observer-panel" data-shortcut="1">
+      <button type="button" data-panel="observer-panel" aria-controls="observer-panel" aria-expanded="false" data-shortcut="1">
         <span class="dock-icon">◎</span><span>Observer</span><kbd>1</kbd>
       </button>
-      <button type="button" data-panel="lab-panel" data-shortcut="2">
+      <button type="button" data-panel="lab-panel" aria-controls="lab-panel" aria-expanded="false" data-shortcut="2">
         <span class="dock-icon">✦</span><span>Laboratoire</span><kbd>2</kbd>
       </button>
-      <button type="button" data-panel="settings-panel" data-shortcut="3">
+      <button type="button" data-panel="settings-panel" aria-controls="settings-panel" aria-expanded="false" data-shortcut="3">
         <span class="dock-icon">⌁</span><span>Monde</span><kbd>3</kbd>
       </button>
-      <button type="button" data-panel="journal-panel" data-shortcut="4">
+      <button type="button" data-panel="journal-panel" aria-controls="journal-panel" aria-expanded="false" data-shortcut="4">
         <span class="dock-icon">≡</span><span>Journal</span><kbd>4</kbd>
       </button>
     </nav>
 
-    <aside id="observer-panel" class="game-panel inspector-card" aria-label="Vie observée">
+    <aside inert id="observer-panel" class="game-panel inspector-card" aria-label="Vie observée">
       <div class="panel-handle" aria-hidden="true"></div>
       <header class="panel-header">
         <div><span class="eyebrow">Observation</span><h2>Vie sélectionnée</h2></div>
@@ -101,7 +101,7 @@
       <div id="inspector" class="panel-scroll"></div>
     </aside>
 
-    <aside id="lab-panel" class="game-panel lab-card" aria-label="Laboratoire">
+    <aside inert id="lab-panel" class="game-panel lab-card" aria-label="Laboratoire">
       <div class="panel-handle" aria-hidden="true"></div>
       <header class="panel-header">
         <div><span class="eyebrow">Intervention</span><h2>Laboratoire</h2></div>
@@ -149,7 +149,7 @@
       </div>
     </aside>
 
-    <aside id="settings-panel" class="game-panel control-card" aria-label="Paramètres du monde">
+    <aside inert id="settings-panel" class="game-panel control-card" aria-label="Paramètres du monde">
       <div class="panel-handle" aria-hidden="true"></div>
       <header class="panel-header">
         <div><span class="eyebrow">Règles globales</span><h2>Monde</h2></div>
@@ -209,19 +209,19 @@
       </div>
     </aside>
 
-    <aside id="journal-panel" class="game-panel events-card" aria-label="Journal du monde">
+    <aside inert id="journal-panel" class="game-panel events-card" aria-label="Journal du monde">
       <div class="panel-handle" aria-hidden="true"></div>
       <header class="panel-header">
         <div><span class="eyebrow">Chronique</span><h2>Journal du monde</h2></div>
         <button type="button" class="panel-close" data-close-panel aria-label="Fermer">×</button>
       </header>
-      <div class="panel-tabs" role="tablist">
-        <button type="button" class="active" data-journal-tab="events-view">Événements</button>
-        <button type="button" data-journal-tab="knowledge-view">Connaissances</button>
+      <div class="panel-tabs" role="tablist" aria-label="Vues du journal">
+        <button type="button" id="journal-events-tab" role="tab" aria-controls="events-view" aria-selected="true" tabindex="0" class="active" data-journal-tab="events-view">Événements</button>
+        <button type="button" id="journal-knowledge-tab" role="tab" aria-controls="knowledge-view" aria-selected="false" tabindex="-1" data-journal-tab="knowledge-view">Connaissances</button>
       </div>
       <div class="panel-scroll">
-        <section id="events-view" class="journal-view active"><div id="events"></div></section>
-        <section id="knowledge-view" class="journal-view"><div id="knowledge"></div></section>
+        <section id="events-view" class="journal-view active" role="tabpanel" aria-labelledby="journal-events-tab" tabindex="0"><div id="events"></div></section>
+        <section id="knowledge-view" class="journal-view" role="tabpanel" aria-labelledby="journal-knowledge-tab" tabindex="0" hidden><div id="knowledge"></div></section>
       </div>
     </aside>
   </main>

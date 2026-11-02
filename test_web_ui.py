@@ -76,5 +76,106 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn('@media(prefers-reduced-motion:reduce)', self.mobile)
 
 
+    def test_journal_tabs_have_accessible_relationships(self):
+        from html.parser import HTMLParser
+
+        class JournalParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.tabs = []
+                self.panels = []
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == 'button' and attributes.get('role') == 'tab':
+                    self.tabs.append(attributes)
+                if tag == 'section' and attributes.get('role') == 'tabpanel':
+                    self.panels.append(attributes)
+
+        parsed = JournalParser()
+        parsed.feed(self.index)
+        self.assertEqual(len(parsed.tabs), 2)
+        self.assertEqual(len(parsed.panels), 2)
+        panels = {panel['id']: panel for panel in parsed.panels}
+        for tab in parsed.tabs:
+            panel = panels[tab['aria-controls']]
+            self.assertEqual(panel['aria-labelledby'], tab['id'])
+        self.assertEqual([tab['aria-selected'] for tab in parsed.tabs], ['true', 'false'])
+        self.assertEqual([tab['tabindex'] for tab in parsed.tabs], ['0', '-1'])
+        self.assertNotIn('hidden', panels['events-view'])
+        self.assertIn('hidden', panels['knowledge-view'])
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        for key in ('ArrowRight', 'ArrowLeft', 'Home', 'End'):
+            self.assertIn("event.key==='" + key + "'", app)
+        self.assertIn("button.setAttribute('aria-selected',String(active))", app)
+        self.assertIn('view.hidden=!active', app)
+        self.assertIn('selected.focus()', app)
+        self.assertIn('target?.closest?.(', app)
+        self.assertIn('[role="tabpanel"]', app)
+        self.assertLess(app.index('target?.closest?.('), app.index("if(event.code==='Space')"))
+        self.assertLess(app.index("if(typing)return;"), app.index("if(event.key==='Escape')"))
+        self.assertLess(app.index("if(event.key==='Escape')"), app.index('if(target?.closest?.('))
+
+    def test_closing_panel_restores_keyboard_focus_to_dock(self):
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        close_panels = app.split('function closePanels(){', 1)[1].split('\n}', 1)[0]
+        self.assertIn("document.activeElement?.closest?.('.game-panel')", close_panels)
+        self.assertIn('document.querySelector(`.game-dock [data-panel="${focusedPanel.id}"]`)', close_panels)
+        self.assertIn('dockButton?.focus()', close_panels)
+
+
+    def test_game_panels_are_inert_until_opened(self):
+        from html.parser import HTMLParser
+
+        class PanelParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.panels = []
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == 'aside' and 'game-panel' in attributes.get('class', '').split():
+                    self.panels.append(attributes)
+
+        parsed = PanelParser()
+        parsed.feed(self.index)
+        self.assertEqual(
+            {panel['id'] for panel in parsed.panels},
+            {'observer-panel', 'lab-panel', 'settings-panel', 'journal-panel'},
+        )
+        self.assertTrue(all('inert' in panel for panel in parsed.panels))
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        opening = app.split('function openPanel(', 1)[1].split('function closePanels()', 1)[0]
+        closing = app.split('function closePanels(){', 1)[1].split('\n}', 1)[0]
+        self.assertIn('p.inert=!active', opening)
+        self.assertIn("panel.querySelector('[data-close-panel]')?.focus()", opening)
+        self.assertIn('p.inert=true', closing)
+        self.assertLess(closing.index('dockButton?.focus()'), closing.index('p.inert=true'))
+        self.assertIn('if(toggle&&panel.classList.contains(\'is-open\'))', opening)
+
+
+    def test_dock_buttons_expose_panel_state_to_assistive_technology(self):
+        from html.parser import HTMLParser
+
+        class DockParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.buttons = []
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == 'button' and 'data-panel' in attributes:
+                    self.buttons.append(attributes)
+
+        parsed = DockParser()
+        parsed.feed(self.index)
+        self.assertEqual(len(parsed.buttons), 4)
+        for button in parsed.buttons:
+            self.assertEqual(button['aria-controls'], button['data-panel'])
+            self.assertEqual(button['aria-expanded'], 'false')
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        self.assertIn("b.setAttribute('aria-expanded',String(active))", app)
+        self.assertIn("b.setAttribute('aria-expanded','false')", app)
+
 if __name__ == '__main__':
     unittest.main()

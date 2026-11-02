@@ -317,17 +317,38 @@ function updateSelectionHud(){
 function openPanel(id,{toggle=false}={}){
   const panel=document.getElementById(id);
   if(!panel)return;
-  const already=panel.classList.contains('is-open');
-  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('is-open'));
-  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
-  if(toggle&&already)return;
-  panel.classList.add('is-open');
-  document.querySelector(`.game-dock [data-panel="${id}"]`)?.classList.add('active');
+  if(toggle&&panel.classList.contains('is-open')){
+    closePanels();
+    return;
+  }
+  document.querySelectorAll('.game-panel').forEach(p=>{
+    const active=p===panel;
+    p.classList.toggle('is-open',active);
+    p.inert=!active;
+  });
+  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>{
+    const active=b.dataset.panel===id;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-expanded',String(active));
+  });
+  panel.querySelector('[data-close-panel]')?.focus();
 }
 
 function closePanels(){
-  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('is-open'));
-  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
+  const focusedPanel=document.activeElement?.closest?.('.game-panel');
+  const dockButton=focusedPanel
+    ? document.querySelector(`.game-dock [data-panel="${focusedPanel.id}"]`)
+    : null;
+  // Déplacer le focus avant de rendre son ancien panneau inert.
+  dockButton?.focus();
+  document.querySelectorAll('.game-panel').forEach(p=>{
+    p.classList.remove('is-open');
+    p.inert=true;
+  });
+  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>{
+    b.classList.remove('active');
+    b.setAttribute('aria-expanded','false');
+  });
 }
 
 canvas.addEventListener('click',async event=>{
@@ -359,10 +380,31 @@ document.querySelectorAll('.game-dock [data-panel]').forEach(button=>{
 });
 document.querySelectorAll('[data-close-panel]').forEach(button=>button.addEventListener('click',closePanels));
 
-document.querySelectorAll('[data-journal-tab]').forEach(button=>{
-  button.addEventListener('click',()=>{
-    document.querySelectorAll('[data-journal-tab]').forEach(b=>b.classList.toggle('active',b===button));
-    document.querySelectorAll('.journal-view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.journalTab));
+const journalTabs=[...document.querySelectorAll('[data-journal-tab]')];
+function activateJournalTab(selected,{focus=false}={}){
+  journalTabs.forEach(button=>{
+    const active=button===selected;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-selected',String(active));
+    button.tabIndex=active?0:-1;
+    const view=document.getElementById(button.dataset.journalTab);
+    view.classList.toggle('active',active);
+    view.hidden=!active;
+  });
+  if(focus)selected.focus();
+}
+journalTabs.forEach((button,index)=>{
+  button.addEventListener('click',()=>activateJournalTab(button));
+  button.addEventListener('keydown',event=>{
+    let next=index;
+    if(event.key==='ArrowRight')next=(index+1)%journalTabs.length;
+    else if(event.key==='ArrowLeft')next=(index-1+journalTabs.length)%journalTabs.length;
+    else if(event.key==='Home')next=0;
+    else if(event.key==='End')next=journalTabs.length-1;
+    else return;
+    event.preventDefault();
+    event.stopPropagation();
+    activateJournalTab(journalTabs[next],{focus:true});
   });
 });
 
@@ -495,14 +537,16 @@ window.addEventListener('keydown',event=>{
   const target=event.target;
   const typing=target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement;
   if(typing)return;
+  // Escape doit rester actif depuis les onglets et boutons du panneau.
+  if(event.key==='Escape'){
+    closePanels();
+    return;
+  }
+  if(target?.closest?.('button,a,[role="tab"],[role="tabpanel"],[role="button"],[contenteditable]'))return;
 
   if(event.code==='Space'){
     event.preventDefault();
     document.getElementById('toggle').click();
-    return;
-  }
-  if(event.key==='Escape'){
-    closePanels();
     return;
   }
   if(event.key.toLowerCase()==='f'){
