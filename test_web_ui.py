@@ -116,5 +116,13 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertLess(app.index("if(typing)return;"), app.index("if(event.key==='Escape')"))
         self.assertLess(app.index("if(event.key==='Escape')"), app.index('if(target?.closest?.('))
 
+    def test_closing_panel_restores_keyboard_focus_to_dock(self):
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        close_panels = app.split('function closePanels(){', 1)[1].split('\\n}', 1)[0]
+        self.assertIn("document.activeElement?.closest?.('.game-panel')", close_panels)
+        self.assertIn('document.querySelector(`.game-dock [data-panel="${focusedPanel.id}"]`)', close_panels)
+        self.assertIn('dockButton?.focus()', close_panels)
+
+
 if __name__ == '__main__':
     unittest.main()

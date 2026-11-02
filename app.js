@@ -326,8 +326,13 @@ function openPanel(id,{toggle=false}={}){
 }
 
 function closePanels(){
+  const focusedPanel=document.activeElement?.closest?.('.game-panel');
+  const dockButton=focusedPanel
+    ? document.querySelector(`.game-dock [data-panel="${focusedPanel.id}"]`)
+    : null;
   document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('is-open'));
   document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
+  dockButton?.focus();
 }
 
 canvas.addEventListener('click',async event=>{

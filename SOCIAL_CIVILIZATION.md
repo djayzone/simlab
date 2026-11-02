@@ -61,7 +61,9 @@ La sélection au clic et les raccourcis de panneaux restent inchangés.
 Les raccourcis globaux (Espace, F, 1–4) laissent les touches natives aux
 contrôles interactifs et aux panneaux du journal lorsqu'ils ont le focus.
 La touche `Échap` continue de fermer les panneaux lorsque le focus se trouve
-sur un onglet ou un bouton, sans détourner les touches de saisie.
+sur un onglet ou un bouton, sans détourner les touches de saisie. Après fermeture
+par Échap ou par le bouton de fermeture, le focus revient au bouton correspondant
+du dock si le focus était dans le panneau.
 
 **Suite du lot, non implémentée ici :** relier chaque événement significatif
 à des causes observables et vérifiables sans inventer d'intentions ; distinguer
