@@ -43,6 +43,15 @@ d'évoluer selon ces conditions. L'action `{ "action": "auto" }` libère les
 contraintes manuelles et reprend l'évolution naturelle : elle **ne réinitialise
 pas** la sécheresse à zéro.
 
+**Attention aux presets successifs :** en mode `manual`, chaque nouveau preset
+est fusionné avec les réglages déjà imposés. Passer de `heatwave` ou `drought`
+à `rain` **ne libère pas** la valeur `drought` précédente : la pluie est forcée,
+mais la sécheresse reste verrouillée. Pour permettre sa récupération naturelle,
+choisir d'abord `Auto` afin de libérer les contraintes, puis éventuellement
+appliquer `rain` si une pluie manuelle est souhaitée. `Auto` ne remet pas le
+niveau de sécheresse à zéro. Ce scénario de succession de presets n'est pas
+couvert par les cinq tests unitaires du modèle et reste à valider en HTTP/UI.
+
 Contrat vérifiable hors ligne depuis la racine du dépôt :
 
 ```bash
