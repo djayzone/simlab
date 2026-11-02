@@ -57,6 +57,7 @@ Les deux onglets du journal utilisent des relations explicites
 `tablist` / `tab` / `tabpanel` et un seul onglet actif dans l'ordre
 de tabulation. Flèches gauche/droite, Début et Fin déplacent la sélection
 et le focus ; un panneau inactif est masqué à la navigation assistée.
+Les boutons du dock exposent `aria-controls` et synchronisent `aria-expanded` avec l'ouverture et la fermeture des panneaux.
 Les quatre panneaux de jeu sont initialement `inert` : un panneau fermé
 n'est pas atteignable au clavier ni exposé aux technologies d'assistance.
 À l'ouverture, le focus passe au bouton Fermer du panneau ; à la fermeture

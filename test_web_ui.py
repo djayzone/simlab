@@ -154,5 +154,28 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn('if(toggle&&panel.classList.contains(\'is-open\'))', opening)
 
 
+    def test_dock_buttons_expose_panel_state_to_assistive_technology(self):
+        from html.parser import HTMLParser
+
+        class DockParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.buttons = []
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == 'button' and 'data-panel' in attributes:
+                    self.buttons.append(attributes)
+
+        parsed = DockParser()
+        parsed.feed(self.index)
+        self.assertEqual(len(parsed.buttons), 4)
+        for button in parsed.buttons:
+            self.assertEqual(button['aria-controls'], button['data-panel'])
+            self.assertEqual(button['aria-expanded'], 'false')
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        self.assertIn("b.setAttribute('aria-expanded',String(active))", app)
+        self.assertIn("b.setAttribute('aria-expanded','false')", app)
+
 if __name__ == '__main__':
     unittest.main()

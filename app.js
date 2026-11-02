@@ -326,7 +326,11 @@ function openPanel(id,{toggle=false}={}){
     p.classList.toggle('is-open',active);
     p.inert=!active;
   });
-  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.toggle('active',b.dataset.panel===id));
+  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>{
+    const active=b.dataset.panel===id;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-expanded',String(active));
+  });
   panel.querySelector('[data-close-panel]')?.focus();
 }
 
@@ -341,7 +345,10 @@ function closePanels(){
     p.classList.remove('is-open');
     p.inert=true;
   });
-  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>{
+    b.classList.remove('active');
+    b.setAttribute('aria-expanded','false');
+  });
 }
 
 canvas.addEventListener('click',async event=>{
