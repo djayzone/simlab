@@ -57,6 +57,12 @@ Les deux onglets du journal utilisent des relations explicites
 `tablist` / `tab` / `tabpanel` et un seul onglet actif dans l'ordre
 de tabulation. Flèches gauche/droite, Début et Fin déplacent la sélection
 et le focus ; un panneau inactif est masqué à la navigation assistée.
+Les quatre panneaux de jeu sont initialement `inert` : un panneau fermé
+n'est pas atteignable au clavier ni exposé aux technologies d'assistance.
+À l'ouverture, le focus passe au bouton Fermer du panneau ; à la fermeture
+par Échap, bouton ou bascule du dock, il revient au bouton de mode concerné
+lorsqu'il se trouvait dans le panneau. Le focus est restitué avant d'activer
+`inert` pour éviter de le laisser dans un contenu désactivé.
 La sélection au clic et les raccourcis de panneaux restent inchangés.
 Les raccourcis globaux (Espace, F, 1–4) laissent les touches natives aux
 contrôles interactifs et aux panneaux du journal lorsqu'ils ont le focus.

@@ -317,12 +317,17 @@ function updateSelectionHud(){
 function openPanel(id,{toggle=false}={}){
   const panel=document.getElementById(id);
   if(!panel)return;
-  const already=panel.classList.contains('is-open');
-  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('is-open'));
-  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
-  if(toggle&&already)return;
-  panel.classList.add('is-open');
-  document.querySelector(`.game-dock [data-panel="${id}"]`)?.classList.add('active');
+  if(toggle&&panel.classList.contains('is-open')){
+    closePanels();
+    return;
+  }
+  document.querySelectorAll('.game-panel').forEach(p=>{
+    const active=p===panel;
+    p.classList.toggle('is-open',active);
+    p.inert=!active;
+  });
+  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.toggle('active',b.dataset.panel===id));
+  panel.querySelector('[data-close-panel]')?.focus();
 }
 
 function closePanels(){
@@ -330,9 +335,13 @@ function closePanels(){
   const dockButton=focusedPanel
     ? document.querySelector(`.game-dock [data-panel="${focusedPanel.id}"]`)
     : null;
-  document.querySelectorAll('.game-panel').forEach(p=>p.classList.remove('is-open'));
-  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
+  // Déplacer le focus avant de rendre son ancien panneau inert.
   dockButton?.focus();
+  document.querySelectorAll('.game-panel').forEach(p=>{
+    p.classList.remove('is-open');
+    p.inert=true;
+  });
+  document.querySelectorAll('.game-dock [data-panel]').forEach(b=>b.classList.remove('active'));
 }
 
 canvas.addEventListener('click',async event=>{

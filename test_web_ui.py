@@ -124,5 +124,35 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn('dockButton?.focus()', close_panels)
 
 
+    def test_game_panels_are_inert_until_opened(self):
+        from html.parser import HTMLParser
+
+        class PanelParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.panels = []
+
+            def handle_starttag(self, tag, attrs):
+                attributes = dict(attrs)
+                if tag == 'aside' and 'game-panel' in attributes.get('class', '').split():
+                    self.panels.append(attributes)
+
+        parsed = PanelParser()
+        parsed.feed(self.index)
+        self.assertEqual(
+            {panel['id'] for panel in parsed.panels},
+            {'observer-panel', 'lab-panel', 'settings-panel', 'journal-panel'},
+        )
+        self.assertTrue(all('inert' in panel for panel in parsed.panels))
+        app = (ROOT / 'app.js').read_text(encoding='utf-8')
+        opening = app.split('function openPanel(', 1)[1].split('function closePanels()', 1)[0]
+        closing = app.split('function closePanels(){', 1)[1].split('\n}', 1)[0]
+        self.assertIn('p.inert=!active', opening)
+        self.assertIn("panel.querySelector('[data-close-panel]')?.focus()", opening)
+        self.assertIn('p.inert=true', closing)
+        self.assertLess(closing.index('dockButton?.focus()'), closing.index('p.inert=true'))
+        self.assertIn('if(toggle&&panel.classList.contains(\'is-open\'))', opening)
+
+
 if __name__ == '__main__':
     unittest.main()
