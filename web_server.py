@@ -15,6 +15,12 @@ MAX_BODY = 256 * 1024
 STATIC_FILES = {'index.html', 'app.js', 'weather.js', 'persistence.js', 'styles.css', 'mobile_ux.css', 'mobile_ux.js'}
 
 
+def inject_mobile_assets(body: bytes) -> bytes:
+    """Add the responsive stylesheet and mobile status script to the served page."""
+    body = body.replace(b'</head>', b'<link rel="stylesheet" href="/mobile_ux.css"></head>')
+    return body.replace(b'</body>', b'<script src="/weather.js"></script><script src="/mobile_ux.js"></script></body>')
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = 'SIMLabWeb/3'
 
@@ -88,8 +94,7 @@ class Handler(BaseHTTPRequestHandler):
         except FileNotFoundError:
             self._json(404, {'error': 'not_found'}); return
         if name == 'index.html':
-            body = body.replace(b'</head>', b'<link rel="stylesheet" href="/mobile_ux.css"></head>')
-            body = body.replace(b'</body>', b'<script src="/weather.js"></script><script src="/mobile_ux.js"></script></body>')
+            body = inject_mobile_assets(body)
         content_type = mimetypes.guess_type(name)[0] or 'application/octet-stream'
         self._write(200, body, f'{content_type}; charset=utf-8')
 
