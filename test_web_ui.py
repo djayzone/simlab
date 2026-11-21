@@ -1,6 +1,8 @@
 from pathlib import Path
 import unittest
 
+from web_server import STATIC_FILES, inject_mobile_assets
+
 
 ROOT = Path(__file__).resolve().parent
 
@@ -48,6 +50,16 @@ class WebUiStructureTests(unittest.TestCase):
         self.assertIn('bottom:calc(73px + var(--safe-bottom))', self.mobile)
         self.assertNotIn('mobile-nav', (ROOT / 'mobile_ux.js').read_text(encoding='utf-8'))
 
+    def test_mobile_assets_are_whitelisted_and_injected(self):
+        self.assertIn('mobile_ux.css', STATIC_FILES)
+        self.assertIn('mobile_ux.js', STATIC_FILES)
+
+        source = b'<!doctype html><html><head></head><body></body></html>'
+        rendered = inject_mobile_assets(source)
+        self.assertIn(b'<link rel="stylesheet" href="/mobile_ux.css">', rendered)
+        self.assertIn(b'<script src="/weather.js"></script><script src="/mobile_ux.js"></script>', rendered)
+        self.assertEqual(rendered.count(b'mobile_ux.css'), 1)
+        self.assertEqual(rendered.count(b'mobile_ux.js'), 1)
 
     def test_dynamic_mechanics_are_visible_in_game_ui(self):
         app = (ROOT / 'app.js').read_text(encoding='utf-8')
